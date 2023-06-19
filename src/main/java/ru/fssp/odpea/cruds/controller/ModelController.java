@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.fssp.odpea.cruds.dto.DTOModelName;
 import ru.fssp.odpea.cruds.model.ModelName;
 import ru.fssp.odpea.cruds.service.ModelInterface;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @RequestMapping("/model/api1")
 @RestController
 @Slf4j
-public class ModelController {
+public class ModelController {// NamingPractice
 
     private ModelInterface modelInterface;
 
@@ -23,15 +24,17 @@ public class ModelController {
         this.modelInterface = modelInterface;
     }
     //Update endpoint
+//1) модель поменять на ModelNameDTO
+//2) Mapping - mapStruct доб-ть в зависимости,
 
-    @PostMapping("/update/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ModelName> update(@PathVariable Long id, @RequestBody ModelName data) {
         ModelName savedData = modelInterface.updateData(id, data);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedData);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ModelName> create(@RequestBody ModelName modelName) {
+    public ResponseEntity<ModelName> create(@RequestBody ModelName modelName) { //DTO
         ModelName savedModelName = modelInterface.createModelName(modelName);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedModelName);
     }

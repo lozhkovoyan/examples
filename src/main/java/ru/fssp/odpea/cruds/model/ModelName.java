@@ -26,7 +26,7 @@ public class ModelName {
     @Column(name = "VALUE_NAME_FIRM")
     private String valueNameFirm;
     @Column(name = "VALUE_INSTEAD_NAME_FIRM")
-    private String valueIsteadNameFirm;
+    private String valueInsteadNameFirm;
     @Column(name = "DT_BEG")
     private ZonedDateTime dtBeg;
     @Column(name = "DT_END")

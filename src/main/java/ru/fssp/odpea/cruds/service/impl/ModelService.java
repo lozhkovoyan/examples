@@ -42,7 +42,7 @@ public class ModelService implements ModelInterface {
             ModelName modelNameFromRepositoryGet = foundModelNameByIdRepo.get();
             modelNameFromRepositoryGet.setType(data.getType());
             modelNameFromRepositoryGet.setValueNameFirm(data.getValueNameFirm());
-            modelNameFromRepositoryGet.setValueIsteadNameFirm(data.getValueIsteadNameFirm());
+            modelNameFromRepositoryGet.setValueInsteadNameFirm(data.getValueInsteadNameFirm());
             modelNameFromRepositoryGet.setDtBeg(data.getDtBeg());
             modelNameFromRepositoryGet.setDtEnd(data.getDtEnd());
             modelNameFromRepositoryGet.setIsNowActive(data.getIsNowActive());
