@@ -6,7 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.fssp.odpea.cruds.dto.DTOModelName;
+import ru.fssp.odpea.cruds.dto.ModelNameDto;
+import ru.fssp.odpea.cruds.mapper.ModelNameMapper;
 import ru.fssp.odpea.cruds.model.ModelName;
 import ru.fssp.odpea.cruds.service.ModelInterface;
 
@@ -17,8 +18,7 @@ import java.util.List;
 @RestController
 @Slf4j
 public class ModelController {// NamingPractice
-
-    private ModelInterface modelInterface;
+    private final ModelInterface modelInterface;
 
     public ModelController(ModelInterface modelInterface) {
         this.modelInterface = modelInterface;
@@ -34,15 +34,19 @@ public class ModelController {// NamingPractice
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ModelName> create(@RequestBody ModelName modelName) { //DTO
+    public ResponseEntity<ModelNameDto> create(@RequestBody ModelNameDto modelNameDto) { //DTO
+        ModelName modelName = ModelNameMapper.INSTANCE.mapToDto(modelNameDto);
+
         ModelName savedModelName = modelInterface.createModelName(modelName);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedModelName);
+        ModelNameDto modelNameResponse = ModelNameMapper.INSTANCE.mapFromDto(savedModelName);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(modelNameResponse);
     }
 
     @ApiOperation("Метод Гет")
     @GetMapping("/model")
     public ResponseEntity<List<ModelName>> getAllByValueNameFirm(Pageable pageable,
-                                      @RequestParam String valueNameFirm) {
+                                                                 @RequestParam String valueNameFirm) {
         List<ModelName> allByValueNameFirm = modelInterface.findAllByValueNameFirm(pageable, valueNameFirm);
         return ResponseEntity.status(HttpStatus.OK).body(allByValueNameFirm);
     }

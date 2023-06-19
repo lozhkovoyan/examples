@@ -1,12 +1,13 @@
 package ru.fssp.odpea.cruds.dto;
 
-import javax.persistence.Column;
-import java.time.ZonedDateTime;
+import lombok.Data;
 
-public class DTOModelName {
+import java.time.ZonedDateTime;
+@Data
+public class ModelNameDto {
     private String type;
     private String valueNameFirm;
-    private String valueIsteadNameFirm;
+    private String valueInsteadNameFirm;
     private ZonedDateTime dtBeg;
     private ZonedDateTime dtEnd;
     private Character isNowActive;
