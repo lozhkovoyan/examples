@@ -17,7 +17,7 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ModelName {
+public class Delegate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
