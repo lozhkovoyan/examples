@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.fssp.odpea.cruds.model.ModelName;
 import ru.fssp.odpea.cruds.repository.ModelRepository;
-import ru.fssp.odpea.cruds.service.ModelInterface;
+import ru.fssp.odpea.cruds.service.ModelService;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -14,11 +14,11 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class ModelService implements ModelInterface {
+public class ModelServiceImpl implements ModelService {
 
     private ModelRepository modelRepository;
 
-    public ModelService(ModelRepository modelRepository) {
+    public ModelServiceImpl(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
     }
 
@@ -26,9 +26,9 @@ public class ModelService implements ModelInterface {
         return modelRepository.findAll();
     }
 
-    public List<ModelName> findAllByValueNameFirm(Pageable pageable, String valueNameFirm) {
+    public Page<ModelName> findAllByValueNameFirm(Pageable pageable, String valueNameFirm) {
         Page<ModelName> page = modelRepository.findAllByValueNameFirm(valueNameFirm, pageable);
-        return page.getContent();
+        return page;
     }
 
     public ModelName createModelName(ModelName modelName) {

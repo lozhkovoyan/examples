@@ -2,6 +2,7 @@ package ru.fssp.odpea.cruds.controller;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,19 +10,17 @@ import org.springframework.web.bind.annotation.*;
 import ru.fssp.odpea.cruds.dto.ModelNameDto;
 import ru.fssp.odpea.cruds.mapper.ModelNameMapper;
 import ru.fssp.odpea.cruds.model.ModelName;
-import ru.fssp.odpea.cruds.service.ModelInterface;
-
-import java.util.List;
+import ru.fssp.odpea.cruds.service.ModelService;
 
 @ApiOperation("Products API")
 @RequestMapping("/model/api1")
 @RestController
 @Slf4j
 public class ModelController {// NamingPractice
-    private final ModelInterface modelInterface;
+    private final ModelService modelService;
 
-    public ModelController(ModelInterface modelInterface) {
-        this.modelInterface = modelInterface;
+    public ModelController(ModelService modelService) {
+        this.modelService = modelService;
     }
     //Update endpoint
 //1) модель поменять на ModelNameDTO
@@ -30,7 +29,7 @@ public class ModelController {// NamingPractice
     public ResponseEntity<ModelNameDto> update(@PathVariable Long id, @RequestBody ModelNameDto modelNameDto) {
         ModelName mappedModelNameDto = ModelNameMapper.INSTANCE.mapToDto(modelNameDto);
 
-        ModelName savedModelName = modelInterface.updateData(id, mappedModelNameDto);
+        ModelName savedModelName = modelService.updateData(id, mappedModelNameDto);
         ModelNameDto modelNameResponse = ModelNameMapper.INSTANCE.mapFromDto(savedModelName);
         return ResponseEntity.status(HttpStatus.CREATED).body(modelNameResponse);
     }
@@ -39,7 +38,7 @@ public class ModelController {// NamingPractice
     public ResponseEntity<ModelNameDto> create(@RequestBody ModelNameDto modelNameDto) { //DTO
         ModelName mappedModelNameDto = ModelNameMapper.INSTANCE.mapToDto(modelNameDto);
 
-        ModelName savedModelName = modelInterface.createModelName(mappedModelNameDto);
+        ModelName savedModelName = modelService.createModelName(mappedModelNameDto);
         ModelNameDto modelNameResponse = ModelNameMapper.INSTANCE.mapFromDto(savedModelName);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(modelNameResponse);
@@ -47,9 +46,9 @@ public class ModelController {// NamingPractice
 
     @ApiOperation("Метод Гет")
     @GetMapping("/model")
-    public ResponseEntity<List<ModelName>> getAllByValueNameFirm(Pageable pageable,
+    public ResponseEntity<Page<ModelName>> getAllByValueNameFirm(Pageable pageable,
                                                                  @RequestParam String valueNameFirm) {
-        List<ModelName> allByValueNameFirm = modelInterface.findAllByValueNameFirm(pageable, valueNameFirm);
+        Page<ModelName> allByValueNameFirm = modelService.findAllByValueNameFirm(pageable, valueNameFirm);
         return ResponseEntity.status(HttpStatus.OK).body(allByValueNameFirm);
     }
 }
