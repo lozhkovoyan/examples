@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.fssp.odpea.cruds.dto.DelegateDto;
+import ru.fssp.odpea.cruds.mapper.DelegateMapper;
 import ru.fssp.odpea.cruds.model.Delegate;
 import ru.fssp.odpea.cruds.repository.DelegateRepository;
 import ru.fssp.odpea.cruds.service.DelegateService;
@@ -22,32 +24,36 @@ public class DelegateServiceImpl implements DelegateService {
         this.delegateRepository = delegateRepository;
     }
 
-    public List<Delegate> findAll() {
-        return delegateRepository.findAll();
-    }
+//    public List<Delegate> findAll() {
+//        return delegateRepository.findAll();
+//    }
 
-    public Page<Delegate> findAllByValueNameFirm(Pageable pageable, String valueNameFirm) {
-        Page<Delegate> page = delegateRepository.findAllByValueNameFirm(valueNameFirm, pageable);
+    public Page<DelegateDto> findAllByValueNameFirm(Pageable pageable, String valueNameFirm) {
+        Page<DelegateDto> page = delegateRepository.findAllByValueNameFirm(valueNameFirm, pageable);
         return page;
     }
 
-    public Delegate createModelName(Delegate delegate) {
-        delegate.setDataCreate(ZonedDateTime.now());
-        return delegateRepository.save(delegate);
+//        DelegateDto modelNameResponse = DelegateMapper.INSTANCE.mapFromDto(savedDelegate);
+    public DelegateDto createModelName(Delegate delegate) {
+        DelegateDto mappedDelegateDto = DelegateMapper.INSTANCE.mapToDto(delegate);
+        mappedDelegateDto.setDataCreate(ZonedDateTime.now());
+        return delegateRepository.save(mappedDelegateDto);
     }
 
-    public Delegate updateData(Long id, Delegate data) {
-        Optional<Delegate> foundModelNameByIdRepo = delegateRepository.findById(id);
-        if (foundModelNameByIdRepo.isPresent()) {
-            Delegate delegateFromRepositoryGet = foundModelNameByIdRepo.get();
-            delegateFromRepositoryGet.setType(data.getType());
-            delegateFromRepositoryGet.setValueNameFirm(data.getValueNameFirm());
-            delegateFromRepositoryGet.setValueInsteadNameFirm(data.getValueInsteadNameFirm());
-            delegateFromRepositoryGet.setDtBeg(data.getDtBeg());
-            delegateFromRepositoryGet.setDtEnd(data.getDtEnd());
-            delegateFromRepositoryGet.setIsNowActive(data.getIsNowActive());
-            delegateFromRepositoryGet.setUserCreate(data.getUserCreate());
-            return delegateRepository.save(delegateFromRepositoryGet);
+//        DelegateDto modelNameResponse = DelegateMapper.INSTANCE.mapFromDto(savedDelegate);
+    public DelegateDto updateData(Long id, DelegateDto delegateDto) {
+//        Delegate mappedDelegateDto = DelegateMapper.INSTANCE.mapToDto(delegateDto);
+        Optional<DelegateDto> foundDelegateDtoById = delegateRepository.findById(id);
+        if (foundDelegateDtoById.isPresent()) {
+            DelegateDto delegateDtoFromRepositoryGet = foundDelegateDtoById.get();
+            delegateDtoFromRepositoryGet.setType(delegateDto.getType());
+            delegateDtoFromRepositoryGet.setValueNameFirm(delegateDto.getValueNameFirm());
+            delegateDtoFromRepositoryGet.setValueInsteadNameFirm(delegateDto.getValueInsteadNameFirm());
+            delegateDtoFromRepositoryGet.setDtBeg(delegateDto.getDtBeg());
+            delegateDtoFromRepositoryGet.setDtEnd(delegateDto.getDtEnd());
+            delegateDtoFromRepositoryGet.setIsNowActive(delegateDto.getIsNowActive());
+            delegateDtoFromRepositoryGet.setUserCreate(delegateDto.getUserCreate());
+            return delegateRepository.save(delegateDtoFromRepositoryGet);
         }
         return null;
     }
