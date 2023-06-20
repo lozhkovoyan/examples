@@ -25,19 +25,21 @@ public class ModelController {// NamingPractice
     }
     //Update endpoint
 //1) модель поменять на ModelNameDTO
-//2) Mapping - mapStruct доб-ть в зависимости,
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ModelName> update(@PathVariable Long id, @RequestBody ModelName data) {
-        ModelName savedData = modelInterface.updateData(id, data);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedData);
+    public ResponseEntity<ModelNameDto> update(@PathVariable Long id, @RequestBody ModelNameDto modelNameDto) {
+        ModelName mappedModelNameDto = ModelNameMapper.INSTANCE.mapToDto(modelNameDto);
+
+        ModelName savedModelName = modelInterface.updateData(id, mappedModelNameDto);
+        ModelNameDto modelNameResponse = ModelNameMapper.INSTANCE.mapFromDto(savedModelName);
+        return ResponseEntity.status(HttpStatus.CREATED).body(modelNameResponse);
     }
 
     @PostMapping("/create")
     public ResponseEntity<ModelNameDto> create(@RequestBody ModelNameDto modelNameDto) { //DTO
-        ModelName modelName = ModelNameMapper.INSTANCE.mapToDto(modelNameDto);
+        ModelName mappedModelNameDto = ModelNameMapper.INSTANCE.mapToDto(modelNameDto);
 
-        ModelName savedModelName = modelInterface.createModelName(modelName);
+        ModelName savedModelName = modelInterface.createModelName(mappedModelNameDto);
         ModelNameDto modelNameResponse = ModelNameMapper.INSTANCE.mapFromDto(savedModelName);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(modelNameResponse);
