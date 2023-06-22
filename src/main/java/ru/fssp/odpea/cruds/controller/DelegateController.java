@@ -1,6 +1,7 @@
 package ru.fssp.odpea.cruds.controller;
 
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,11 +9,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.fssp.odpea.cruds.dto.DelegateDto;
+import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
 import ru.fssp.odpea.cruds.model.Delegate;
 import ru.fssp.odpea.cruds.service.DelegateService;
 
+import java.io.IOException;
+
 @ApiOperation("Products API")
-@RequestMapping("/delegate/api1")
+@RequestMapping("/api/v1/delegate")
 @RestController
 @Slf4j
 public class DelegateController {// NamingPractice
@@ -22,26 +26,36 @@ public class DelegateController {// NamingPractice
         this.delegateService = delegateService;
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<DelegateDto> updateDelegate(@PathVariable Long id,
-                                                      @RequestBody DelegateDto delegateDto) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(delegateService.updateData(id, delegateDto));
+    @PutMapping("/{id}")
+    public ResponseEntity<DelegateDtoRequest> updateDelegate(@PathVariable Long id,
+                                                      @RequestBody Delegate delegate) {
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(delegateService.updateData(id, delegate));
+
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/create")
-    public ResponseEntity<DelegateDto> createDelegate(@RequestBody Delegate delegate) { //DTO
+    public ResponseEntity<DelegateDtoRequest> createDelegate(@RequestBody Delegate delegate) { //DTO
         return ResponseEntity.status(HttpStatus.CREATED).body(delegateService.createModelName(delegate));
     }
 
-    @ApiOperation("Метод Гет")
+    @Operation(summary = "Сервис для отправления всех данных Delegate на фронт с пагинацией и фильтром по полю значения показателя (FIRST|SECOND) организации, сдающей отчетность")
     @GetMapping("/get")
-    public ResponseEntity<Page<DelegateDto>> getAllDelegateByValueNameFirm(Pageable pageable,
-                                                                           @RequestParam String valueNameFirm) {
-        Page<DelegateDto> allByValueNameFirm = delegateService.findAllByValueNameFirm(pageable, valueNameFirm);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(allByValueNameFirm);
+    public ResponseEntity<Page<Delegate>> getAllDelegate(
+            Pageable pageable,
+            @RequestParam String valueNameFirm) {
+        log.info("Получен запрос на получение всех значений показателя (FIRST|SECOND) {} организации, сдающей отчетность", valueNameFirm);
+        Page<Delegate> allDelegatesByValueWho = delegateService.findAllWithValueNameFirm(pageable, valueNameFirm);
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(allDelegatesByValueWho);
+        } catch (Exception e) {
+            log.error("Ошибка получения всех значений показателя организации {} сдающей отчетность ", valueNameFirm);
+            return (ResponseEntity<Page<Delegate>>) ResponseEntity.status(HttpStatus.NOT_FOUND);
+        }
     }
 }

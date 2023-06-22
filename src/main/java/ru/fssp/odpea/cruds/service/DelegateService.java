@@ -3,17 +3,17 @@ package ru.fssp.odpea.cruds.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import ru.fssp.odpea.cruds.dto.DelegateDto;
+import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
 import ru.fssp.odpea.cruds.model.Delegate;
 
-import java.util.List;
+import java.io.IOException;
 
 public interface DelegateService {
-//    List<Delegate> findAll();
+//    List<DelegateDto> findAll();
 
-    Page<DelegateDto> findAllByValueNameFirm(Pageable pageable, String valueNameFirm);
+    Page<Delegate> findAllWithValueNameFirm(Pageable pageable, String valueNameFirm);
 
-    DelegateDto createModelName(Delegate delegate);
+    DelegateDtoRequest createModelName(Delegate delegate);
 
-    DelegateDto updateData(Long id, DelegateDto delegateDto);
+    DelegateDtoRequest updateData(Long id, Delegate delegate) throws IOException;
 }

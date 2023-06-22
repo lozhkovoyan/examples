@@ -12,7 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.ZonedDateTime;
 
-@Entity(name = "MODEL_NAME")
+@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
