@@ -9,7 +9,6 @@ import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
 import ru.fssp.odpea.cruds.mapper.DelegateMapper;
 import ru.fssp.odpea.cruds.model.Delegate;
 import ru.fssp.odpea.cruds.repository.DelegateRepository;
-import ru.fssp.odpea.cruds.service.DelegateService;
 import ru.fssp.odpea.cruds.service.DelegateSpecification;
 
 import java.io.IOException;
@@ -18,7 +17,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class DelegateServiceImpl implements DelegateService {
+public class DelegateServiceImpl {
 
     private final DelegateRepository delegateRepository;
 

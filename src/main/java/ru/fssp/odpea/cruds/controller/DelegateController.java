@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
 import ru.fssp.odpea.cruds.model.Delegate;
-import ru.fssp.odpea.cruds.service.DelegateService;
+import ru.fssp.odpea.cruds.service.impl.DelegateServiceImpl;
 
 import java.io.IOException;
 
@@ -20,9 +20,9 @@ import java.io.IOException;
 @RestController
 @Slf4j
 public class DelegateController {// NamingPractice
-    private final DelegateService delegateService;
+    private final DelegateServiceImpl delegateService;
 
-    public DelegateController(DelegateService delegateService) {
+    public DelegateController(DelegateServiceImpl delegateService) {
         this.delegateService = delegateService;
     }
 
