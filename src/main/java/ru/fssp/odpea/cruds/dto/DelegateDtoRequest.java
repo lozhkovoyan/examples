@@ -5,7 +5,6 @@ import lombok.Data;
 import java.time.ZonedDateTime;
 @Data
 public class DelegateDtoRequest {
-    private Long id;
     private String type;
     private String valueNameFirm;
     private String valueInsteadNameFirm;

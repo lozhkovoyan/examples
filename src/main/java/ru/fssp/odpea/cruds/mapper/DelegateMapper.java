@@ -8,7 +8,7 @@ import ru.fssp.odpea.cruds.dto.DelegateDto;
 @Mapper(componentModel = "spring")
 public interface DelegateMapper {
     DelegateMapper INSTANCE = Mappers.getMapper(DelegateMapper.class);
-    DelegateDto mapToDto(ru.fssp.odpea.cruds.model.Delegate delegate);
+    DelegateDto mapToDtoResp(ru.fssp.odpea.cruds.model.Delegate delegate);
     DelegateDto mapFromDto(ru.fssp.odpea.cruds.model.Delegate delegate);
 */
 package ru.fssp.odpea.cruds.mapper;
@@ -16,20 +16,22 @@ package ru.fssp.odpea.cruds.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
-import ru.fssp.odpea.cruds.dto.DelegateDto;
 import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
+import ru.fssp.odpea.cruds.dto.DelegateDtoResponce;
 import ru.fssp.odpea.cruds.model.Delegate;
 
 @Mapper(componentModel = "spring")
 public interface DelegateMapper {
     DelegateMapper INSTANCE = Mappers.getMapper(DelegateMapper.class);
 
-    DelegateDtoRequest mapToDto(Delegate delegate);
+//    DelegateDtoResponce mapToDtoResp(Delegate delegate);
 
-    DelegateDto mapFromDto(Delegate delegate);
+//    DelegateDtoRequest mapFromDto(Delegate delegate);
 
-    Delegate mapFromDto(DelegateDto delegateDto);
+    Delegate mapFromDto(DelegateDtoRequest delegateDtoRequest);
 
-    Delegate mapFromDto(@MappingTarget Delegate delegate, DelegateDto delegateDto);
+    void mapFromDtoReq(@MappingTarget Delegate delegate, DelegateDtoRequest delegateDtoRequest);
+    void mapToDtoReq(@MappingTarget DelegateDtoRequest delegateDtoRequest, Delegate delegate);
+    void mapToDtoResp(@MappingTarget DelegateDtoResponce delegateDtoResponce, Delegate delegate);
 
 }

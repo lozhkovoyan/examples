@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
+import ru.fssp.odpea.cruds.dto.DelegateDtoResponce;
 import ru.fssp.odpea.cruds.model.Delegate;
 import ru.fssp.odpea.cruds.service.impl.DelegateServiceImpl;
 
@@ -27,8 +28,8 @@ public class DelegateController {// NamingPractice
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DelegateDtoRequest> updateDelegate(@PathVariable Long id,
-                                                      @RequestBody Delegate delegate) {
+    public ResponseEntity<DelegateDtoResponce> updateDelegate(@PathVariable Long id,
+                                                              @RequestBody DelegateDtoRequest delegate) {
         try {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -40,8 +41,10 @@ public class DelegateController {// NamingPractice
     }
 
     @PostMapping("/create")
-    public ResponseEntity<DelegateDtoRequest> createDelegate(@RequestBody Delegate delegate) { //DTO
-        return ResponseEntity.status(HttpStatus.CREATED).body(delegateService.createModelName(delegate));
+    public ResponseEntity<DelegateDtoResponce> createDelegate(@RequestBody DelegateDtoRequest delegateDtoRequest) { //DTO
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(delegateService.createModelName(delegateDtoRequest));
     }
 
     @Operation(summary = "Сервис для отправления всех данных Delegate на фронт с пагинацией и фильтром по полю значения показателя (FIRST|SECOND) организации, сдающей отчетность")
@@ -52,12 +55,12 @@ public class DelegateController {// NamingPractice
             @RequestParam String valueNameFirm) {
         log.info("Получен запрос на получение всех значений показателя (FIRST|SECOND) {} организации, сдающей отчетность page {}, size {}", valueNameFirm, page, size);
         try {
-        Pageable pageable = PageRequest.of(page, size);
-        log.info("Обогощенный класс пагинации {}", pageable);
-        Page<Delegate> allDelegatesByValueWho = delegateService.findAllWithValueNameFirm(pageable, valueNameFirm);
+            Pageable pageable = PageRequest.of(page, size);
+            log.info("Обогощенный класс пагинации {}", pageable);
+            Page<Delegate> allDelegatesByValueWho = delegateService.findAllWithValueNameFirm(pageable, valueNameFirm);
             return ResponseEntity.status(HttpStatus.OK).body(allDelegatesByValueWho);
         } catch (Exception e) {
-            log.error("Ошибка получения всех значений показателя организации {} сдающей отчетность ", valueNameFirm);
+            log.error("Ошибка получения с фильтром значений {} показателя организации сдающей отчетность ", valueNameFirm);
             return (ResponseEntity<Page<Delegate>>) ResponseEntity.status(HttpStatus.NOT_FOUND);
         }
     }
