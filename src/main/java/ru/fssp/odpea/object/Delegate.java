@@ -1,4 +1,4 @@
-package ru.fssp.odpea.cruds.model;
+package ru.fssp.odpea.object;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

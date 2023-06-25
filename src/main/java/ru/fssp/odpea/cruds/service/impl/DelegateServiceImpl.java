@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
 import ru.fssp.odpea.cruds.dto.DelegateDtoResponse;
 import ru.fssp.odpea.cruds.mapper.DelegateMapper;
-import ru.fssp.odpea.cruds.model.Delegate;
+import ru.fssp.odpea.object.Delegate;
 import ru.fssp.odpea.cruds.repository.DelegateRepository;
 import ru.fssp.odpea.cruds.service.DelegateSpecification;
 
@@ -26,20 +26,22 @@ public class DelegateServiceImpl {
         this.delegateRepository = delegateRepository;
     }
 
-    public Page<Delegate> findAllWithValueNameFirm(Pageable pageable, String valueNameFirm) {
+    public Page<Delegate> findAllWithValueNameFirm(Pageable pageable, Optional<String> valueNameFirm) {
         log.info("Сервис обработки вернуть всех делегатов с фильтром {} и пагинацией {} при наличии", valueNameFirm, pageable);
-        Page<Delegate> all = null;
+        Page<Delegate> delegatePageList = null;
+        Specification<Delegate> specification = valueNameFirm.map(DelegateSpecification::hasFilterValueNameFirm).orElse(null);
         try {
-            Specification<Delegate> specification = DelegateSpecification.hasFilterValueWho(valueNameFirm);
-            all = delegateRepository.findAll(specification, pageable);
-            if (all.isEmpty()) {
-                throw new IOException("all.isEmpty() - " + all.isEmpty());
+//            Specification<Delegate> specification = DelegateSpecification.hasFilterValueNameFirm(valueNameFirm);
+            delegatePageList = delegateRepository.findAll(specification, pageable);
+            if (delegatePageList.isEmpty()) {
+                throw new IOException("delegatePageList.isEmpty() - " + delegatePageList.isEmpty());
             }
+            log.info("Получен список из бд с пагинацией valueNameFirm {} с полученный запрос {}", valueNameFirm, delegatePageList.get());
         } catch (Exception e) {
             log.error("Запись c фильтрои {} не найдена {}", valueNameFirm, e.getMessage());
 //            throw new IOException("Запись c фильтрои {} не найдена {}");
         }
-        return all;
+        return delegatePageList;
     }
 
     public DelegateDtoResponse createModelName(DelegateDtoRequest delegateDtoRequest) {

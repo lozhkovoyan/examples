@@ -12,10 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
 import ru.fssp.odpea.cruds.dto.DelegateDtoResponse;
-import ru.fssp.odpea.cruds.model.Delegate;
+import ru.fssp.odpea.object.Delegate;
 import ru.fssp.odpea.cruds.service.impl.DelegateServiceImpl;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @ApiOperation("Products API")
 @RequestMapping("/api/v1/delegate")
@@ -55,13 +56,16 @@ public class DelegateController {// NamingPractice
     public ResponseEntity<Page<Delegate>> getAllDelegate(
             @RequestParam(required = false, defaultValue = "10") int size,
             @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam String valueNameFirm) {
+            @RequestParam(value = "valueNameFirm", required = false) Optional<String> valueNameFirm) {
         log.info("Получен запрос на получение всех значений показателя (FIRST|SECOND) {} организации, сдающей отчетность page {}, size {}",
                 valueNameFirm, page, size);
         Pageable pageable = PageRequest.of(page, size);
         log.info("Обогощенный класс пагинации {}", pageable);
-        Page<Delegate> allDelegatesByValueWho = delegateService.findAllWithValueNameFirm(pageable, valueNameFirm);
-        return ResponseEntity.status(HttpStatus.OK).body(allDelegatesByValueWho);
+        Page<Delegate> allDelegatesByvalueNameFirm = delegateService.findAllWithValueNameFirm(pageable, valueNameFirm);
+        if (allDelegatesByvalueNameFirm.isEmpty()) {
+            log.info("Организации не найдены {} сдающей отчетность ", valueNameFirm);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(allDelegatesByvalueNameFirm);
     }
 
     @SneakyThrows
