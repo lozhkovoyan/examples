@@ -5,12 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.ZonedDateTime;
+
 
 @Entity
 @Data
@@ -21,7 +18,7 @@ public class Delegate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(name = "TYPE")
+    @Column(name = "TYPE")//(default = "OGRN|REGNON")
     private String type;
     @Column(name = "VALUE_NAME_FIRM")
     private String valueNameFirm;

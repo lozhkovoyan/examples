@@ -2,6 +2,7 @@ package ru.fssp.odpea.cruds.controller;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
-import ru.fssp.odpea.cruds.dto.DelegateDtoResponce;
+import ru.fssp.odpea.cruds.dto.DelegateDtoResponse;
 import ru.fssp.odpea.cruds.model.Delegate;
 import ru.fssp.odpea.cruds.service.impl.DelegateServiceImpl;
 
@@ -27,8 +28,9 @@ public class DelegateController {// NamingPractice
         this.delegateService = delegateService;
     }
 
+    @Operation(summary = "Сервис для обновления всех данных Делегата")
     @PutMapping("/{id}")
-    public ResponseEntity<DelegateDtoResponce> updateDelegate(@PathVariable Long id,
+    public ResponseEntity<DelegateDtoResponse> updateDelegate(@PathVariable Long id,
                                                               @RequestBody DelegateDtoRequest delegate) {
         try {
             return ResponseEntity
@@ -40,8 +42,9 @@ public class DelegateController {// NamingPractice
         }
     }
 
+    @Operation(summary = "Сервис создания Делегата организации")
     @PostMapping("/create")
-    public ResponseEntity<DelegateDtoResponce> createDelegate(@RequestBody DelegateDtoRequest delegateDtoRequest) { //DTO
+    public ResponseEntity<DelegateDtoResponse> createDelegate(@RequestBody DelegateDtoRequest delegateDtoRequest) { //DTO
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(delegateService.createModelName(delegateDtoRequest));
@@ -50,18 +53,26 @@ public class DelegateController {// NamingPractice
     @Operation(summary = "Сервис для отправления всех данных Delegate на фронт с пагинацией и фильтром по полю значения показателя (FIRST|SECOND) организации, сдающей отчетность")
     @GetMapping("/get")
     public ResponseEntity<Page<Delegate>> getAllDelegate(
-            @RequestParam(required = false) Integer size,
-            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam String valueNameFirm) {
-        log.info("Получен запрос на получение всех значений показателя (FIRST|SECOND) {} организации, сдающей отчетность page {}, size {}", valueNameFirm, page, size);
+        log.info("Получен запрос на получение всех значений показателя (FIRST|SECOND) {} организации, сдающей отчетность page {}, size {}",
+                valueNameFirm, page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        log.info("Обогощенный класс пагинации {}", pageable);
+        Page<Delegate> allDelegatesByValueWho = delegateService.findAllWithValueNameFirm(pageable, valueNameFirm);
+        return ResponseEntity.status(HttpStatus.OK).body(allDelegatesByValueWho);
+    }
+
+    @SneakyThrows
+    @Operation(summary = "Сервис удаления объекта Delegate если существует")
+    @DeleteMapping("/delete/{id}")
+    public void deleteAboInput(@PathVariable Long id) {
+        log.info("Запрос на удаление");
         try {
-            Pageable pageable = PageRequest.of(page, size);
-            log.info("Обогощенный класс пагинации {}", pageable);
-            Page<Delegate> allDelegatesByValueWho = delegateService.findAllWithValueNameFirm(pageable, valueNameFirm);
-            return ResponseEntity.status(HttpStatus.OK).body(allDelegatesByValueWho);
-        } catch (Exception e) {
-            log.error("Ошибка получения с фильтром значений {} показателя организации сдающей отчетность ", valueNameFirm);
-            return (ResponseEntity<Page<Delegate>>) ResponseEntity.status(HttpStatus.NOT_FOUND);
+            delegateService.delete(id);
+        } catch (IOException e) {
+            log.info(e.getMessage());
         }
     }
 }

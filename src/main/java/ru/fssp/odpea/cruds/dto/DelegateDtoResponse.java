@@ -4,7 +4,7 @@ import lombok.Data;
 
 import java.time.ZonedDateTime;
 @Data
-public class DelegateDtoResponce {
+public class DelegateDtoResponse {
     private Long id;
     private String type;
     private String valueNameFirm;

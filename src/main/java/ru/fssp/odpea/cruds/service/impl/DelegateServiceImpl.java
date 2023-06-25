@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
-import ru.fssp.odpea.cruds.dto.DelegateDtoResponce;
+import ru.fssp.odpea.cruds.dto.DelegateDtoResponse;
 import ru.fssp.odpea.cruds.mapper.DelegateMapper;
 import ru.fssp.odpea.cruds.model.Delegate;
 import ru.fssp.odpea.cruds.repository.DelegateRepository;
@@ -26,11 +26,7 @@ public class DelegateServiceImpl {
         this.delegateRepository = delegateRepository;
     }
 
-//    public List<DelegateDto> findAll() {
-//        return delegateRepository.findAll();
-//    }
-
-    public Page<Delegate> findAllWithValueNameFirm(Pageable pageable, String valueNameFirm) throws IOException {
+    public Page<Delegate> findAllWithValueNameFirm(Pageable pageable, String valueNameFirm) {
         log.info("Сервис обработки вернуть всех делегатов с фильтром {} и пагинацией {} при наличии", valueNameFirm, pageable);
         Page<Delegate> all = null;
         try {
@@ -43,47 +39,55 @@ public class DelegateServiceImpl {
             log.error("Запись c фильтрои {} не найдена {}", valueNameFirm, e.getMessage());
 //            throw new IOException("Запись c фильтрои {} не найдена {}");
         }
-            return all;
+        return all;
     }
 
-    //        DelegateDto modelNameResponse = DelegateMapper.INSTANCE.mapFromDto(savedDelegate);
-    public DelegateDtoResponce createModelName(DelegateDtoRequest delegateDtoRequest) {
+    public DelegateDtoResponse createModelName(DelegateDtoRequest delegateDtoRequest) {
         log.info("Создаем нового существующего делегата {}", delegateDtoRequest);
-        DelegateDtoResponce delegateDtoResponce = new DelegateDtoResponce();
+        DelegateDtoResponse delegateDtoResponse = new DelegateDtoResponse();
         Delegate delegate = new Delegate();
-        log.info("inizialization complete delegateDtoResponce {} -isNull {} & delegate {} isNull {}", delegateDtoResponce, delegateDtoResponce != null, delegate, delegate != null);
+        log.info("inizialization complete delegateDtoResponce {} -isNull {} & delegate {} isNull {}", delegateDtoResponse, delegateDtoResponse != null, delegate, delegate != null);
         DelegateMapper.INSTANCE.mapFromDtoReq(delegate, delegateDtoRequest);
         delegate.setDataCreate(ZonedDateTime.now());
         log.info("update delegate fromDTORequest {}", delegate);
         Delegate save = delegateRepository.save(delegate);
         log.info("save to DB delegate-save {}", save);
 //        delegate.setDataCreate(ZonedDateTime.now());
-        DelegateMapper.INSTANCE.mapToDtoResp(delegateDtoResponce, save);
-        log.info("update DTORepsonce {}", delegateDtoResponce);
-        return delegateDtoResponce;
+        DelegateMapper.INSTANCE.mapToDtoResp(delegateDtoResponse, save);
+        log.info("update DTORepsonce {}", delegateDtoResponse);
+        return delegateDtoResponse;
     }
 
-    //        DelegateDto modelNameResponse = DelegateMapper.INSTANCE.mapFromDto(savedDelegate);
-    public DelegateDtoResponce updateData(Long id, DelegateDtoRequest delegateDtoRequest) throws IOException {
+    public DelegateDtoResponse updateData(Long id, DelegateDtoRequest delegateDtoRequest) throws IOException {
         Optional<Delegate> foundDelegateDtoById = delegateRepository.findById(id);
-        DelegateDtoResponce delegateDtoResponce = new DelegateDtoResponce();
+        DelegateDtoResponse delegateDtoResponse = new DelegateDtoResponse();
         if (foundDelegateDtoById.isPresent()) {
             Delegate delegate = foundDelegateDtoById.get();
             DelegateMapper.INSTANCE.mapFromDtoReq(delegate, delegateDtoRequest);
             Delegate save = delegateRepository.save(delegate);
-            DelegateMapper.INSTANCE.mapToDtoResp(delegateDtoResponce, save);
-//            Delegate mappedDelegate = foundDelegateDtoById.get();
-//            DelegateDto delegateDtoFromRepositoryGet = foundDelegateDtoById.get();
-/*            delegateDtoResponce.setType(delegateDtoRequest.getType());
-            delegateDtoResponce.setValueNameFirm(delegateDtoRequest.getValueNameFirm());
-            delegateDtoResponce.setValueInsteadNameFirm(delegateDtoRequest.getValueInsteadNameFirm());
-            delegateDtoResponce.setDtBeg(delegateDtoRequest.getDtBeg());
-            delegateDtoResponce.setDtEnd(delegateDtoRequest.getDtEnd());
-            delegateDtoResponce.setIsNowActive(delegateDtoRequest.getIsNowActive());
-            delegateDtoResponce.setUserCreate(delegateDtoRequest.getUserCreate());*/
-            return delegateDtoResponce;
+            methodUnique(save);
+            DelegateMapper.INSTANCE.mapToDtoResp(delegateDtoResponse, save);
+            return delegateDtoResponse;
         }
         log.info("Запись с id={} в бд не найдена", id);
         throw new IOException("Запись с id={} в бд не найдена");
     }
+
+    public void delete(Long id) throws IOException {
+        Optional<Delegate> foundDelegateOptional = delegateRepository.findById(id);
+        log.info("Информация о записи из бд {}", foundDelegateOptional);
+        if (foundDelegateOptional.isPresent()) {
+            delegateRepository.deleteById(id);
+            log.info("Удалена из бд {}", foundDelegateOptional);
+        } else {
+            log.error("Запись id= {} не найдена в бд", id);
+            throw new IOException("Запись с id " + id + " не найдена");
+        }
+    }
+
+    private void methodUnique(Delegate delegateFromDB) {
+        delegateRepository.findById(delegateFromDB.getId());
+    }
+
 }
+
