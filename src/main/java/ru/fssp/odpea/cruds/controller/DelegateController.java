@@ -29,49 +29,49 @@ public class DelegateController {// NamingPractice
         this.delegateService = delegateService;
     }
 
-    @Operation(summary = "Сервис для обновления всех данных Делегата")
-    @PutMapping("/{id}")
-    public ResponseEntity<DelegateDtoResponse> updateDelegate(@PathVariable Long id,
-                                                              @RequestBody DelegateDtoRequest delegate) {
+    public ResponseEntity<Delegate> create(DelegateDtoRequest aboInputDelegateDtoRequest) {
+        log.info("Получен запрос для добавления нового объекта {}", aboInputDelegateDtoRequest);
+//        AboInputDelegate mappedAboInputDelegate = AboInputDelegateMapper.INSTANCE.mapFromDto(aboInputDelegateDto);
         try {
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(delegateService.updateData(id, delegate));
-
-        } catch (IOException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.CREATED).body(delegateService.create(aboInputDelegateDtoRequest));
+        } catch (Exception e) {
+            log.error("Ошибка сохранения {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(new Delegate());
         }
     }
 
-    @Operation(summary = "Сервис создания Делегата организации")
-    @PostMapping("/create")
-    public ResponseEntity<DelegateDtoResponse> createDelegate(@RequestBody DelegateDtoRequest delegateDtoRequest) { //DTO
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(delegateService.createModelName(delegateDtoRequest));
-    }
-
-    @Operation(summary = "Сервис для отправления всех данных Delegate на фронт с пагинацией и фильтром по полю значения показателя (FIRST|SECOND) организации, сдающей отчетность")
-    @GetMapping("/get")
-    public ResponseEntity<Page<Delegate>> getAllDelegate(
-            @RequestParam(required = false, defaultValue = "10") int size,
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(value = "valueNameFirm", required = false) Optional<String> valueNameFirm) {
-        log.info("Получен запрос на получение всех значений показателя (FIRST|SECOND) {} организации, сдающей отчетность page {}, size {}",
-                valueNameFirm, page, size);
+    public ResponseEntity<Page<Delegate>> getAll(
+            int page,
+            int size,
+            Optional<String> valueWho) {
+        log.info("Получен запрос на получение всех значений показателя (OGRN|REGNOM) {} организации, сдающей отчетность", valueWho);
         Pageable pageable = PageRequest.of(page, size);
-        log.info("Обогощенный класс пагинации {}", pageable);
-        Page<Delegate> allDelegatesByvalueNameFirm = delegateService.findAllWithValueNameFirm(pageable, valueNameFirm);
-        if (allDelegatesByvalueNameFirm.isEmpty()) {
-            log.info("Организации не найдены {} сдающей отчетность ", valueNameFirm);
+        log.info("Заполнены поля для пагинации(page {}, size {}), pageable {}", page, size, pageable);
+        Page<Delegate> allDelegatesByValueWho = delegateService.findAllWithValueNameFirm(pageable, valueWho);
+        if (allDelegatesByValueWho.isEmpty()) {
+            log.info("Организации не найдены {} сдающей отчетность ", valueWho);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(allDelegatesByvalueNameFirm);
+        return ResponseEntity.status(HttpStatus.OK).body(allDelegatesByValueWho);
+    }
+
+
+    public ResponseEntity<DelegateDtoResponse> update(
+            Long id,
+            DelegateDtoRequest aboInputDelegateDtoRequest) {
+        log.info("Получен запрос на обновление делегата id = {}, с полями: {}", id, aboInputDelegateDtoRequest);
+        DelegateDtoResponse savedDelegate = new DelegateDtoResponse();
+        try {
+            savedDelegate = delegateService.updateData(id, aboInputDelegateDtoRequest);
+            log.info("Получен ответ на обновление делегата id = {}, с полями: {}", id, savedDelegate);
+            return ResponseEntity.status(HttpStatus.OK).body(savedDelegate);
+        } catch (Exception e) {
+            log.error("Ошибка обновления id= {}, {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(savedDelegate);
+        }
     }
 
     @SneakyThrows
-    @Operation(summary = "Сервис удаления объекта Delegate если существует")
-    @DeleteMapping("/delete/{id}")
-    public void deleteAboInput(@PathVariable Long id) {
+    public void deleteAboInput(Long id) {
         log.info("Запрос на удаление");
         try {
             delegateService.delete(id);

@@ -1,13 +1,14 @@
 package ru.fssp.odpea.cruds.dto;
 
 import lombok.Data;
+import ru.fssp.odpea.object.Type;
 
 import java.time.ZonedDateTime;
 
 @Data
 public class DelegateDtoRequest {
     //    enum
-    private String type;
+    private Type type;
     private String valueNameFirm;
     private String valueInsteadNameFirm;
     private ZonedDateTime dtBeg;
