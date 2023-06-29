@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -17,22 +17,22 @@ import java.time.ZonedDateTime;
 public class Delegate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Enumerated(EnumType.STRING)
     @Column(name = "TYPE")//(default = "OGRN|REGNON")
-    private String type;
+    private Type type;
     @Column(name = "VALUE_NAME_FIRM")
     private String valueNameFirm;
     @Column(name = "VALUE_INSTEAD_NAME_FIRM")
     private String valueInsteadNameFirm;
     @Column(name = "DT_BEG")
-    private ZonedDateTime dtBeg;
+    private LocalDateTime dtBeg;
     @Column(name = "DT_END")
-    private ZonedDateTime dtEnd;
+    private LocalDateTime dtEnd;
     @Column(name = "IS_NOW_ACTIVE")
     private Character isNowActive;
     @Column(name = "USER_CREATE")
     private String userCreate;
     @Column(name = "DATA_CREATE")
-    private ZonedDateTime dataCreate;
+    private LocalDateTime dataCreate;
 }

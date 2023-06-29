@@ -1,26 +1,22 @@
 package ru.fssp.odpea.cruds.service;
 
 import org.springframework.data.jpa.domain.Specification;
-import ru.fssp.odpea.cruds.specs.CommonSpec;
 import ru.fssp.odpea.object.Delegate;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DelegateSpecification {
-    public static Specification<Delegate> hasFilterValueNameFirm(String valueNameFirm) {
-        return (Root<Delegate> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) ->
-                valueNameFirm == null ? null : criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("valueNameFirm")),
-                        "%" + valueNameFirm.toLowerCase() + "%");
+    public static Specification<Delegate> getFilterValueNameFirm(String valueNameFirm) {
+        return (root, query, criteriaBuilder) -> valueNameFirm == null ? null : criteriaBuilder.like(
+                criteriaBuilder.lower(root.get("valueNameFirm")),
+                "%" + valueNameFirm.toLowerCase() + "%");
     }
 
+/*
 
-    public static Specification<Delegate> hasDublicates(Delegate aboInputDelegate) {
+    public static Specification<Delegate> getDublicates(Delegate aboInputDelegate) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicate = new ArrayList<>();
             predicate.add(criteriaBuilder.equal(root.get("valueWho"), aboInputDelegate.getValueNameFirm()));
@@ -38,12 +34,13 @@ public class DelegateSpecification {
             return criteriaBuilder.or(dublPredic, overlapPredicate);
         };
     }
+*/
 
     /*public static <F>Specification<F> equalsField(final F value){
         return (root, query, criteriaBuilder) ->
                 value == null ? null : criteriaBuilder.<F>equal(root.get())
     }*/
-    public static Specification<Delegate> isValueWho(final String valueWho) {
+/*    public static Specification<Delegate> isValueWho(final String valueWho) {
         return CommonSpec.fieldEquals(Delegate_.valueWho, valueWho);
-    }
+    }*/
 }
