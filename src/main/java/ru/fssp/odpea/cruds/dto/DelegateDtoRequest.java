@@ -7,8 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class DelegateDtoRequest {
-    //    enum
-    private Type type;
+    private String type;
     private String valueNameFirm;
     private String valueInsteadNameFirm;
     private LocalDateTime dtBeg;

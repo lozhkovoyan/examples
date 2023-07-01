@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class DelegateDtoResponse {
     private Long id;
-    private Type type;
+    private String type;
     private String valueNameFirm;
     private String valueInsteadNameFirm;
     private LocalDateTime dtBeg;

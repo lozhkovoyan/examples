@@ -1,4 +1,4 @@
-package ru.fssp.odpea.cruds.service.impl;
+package ru.fssp.odpea.cruds.service;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -11,34 +11,31 @@ import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
 import ru.fssp.odpea.cruds.dto.DelegateDtoResponse;
 import ru.fssp.odpea.cruds.exceptions.DelegateException;
 import ru.fssp.odpea.cruds.mapper.DelegateMapper;
-import ru.fssp.odpea.object.Delegate;
 import ru.fssp.odpea.cruds.repository.DelegateRepository;
-import ru.fssp.odpea.cruds.service.DelegateSpecification;
+import ru.fssp.odpea.cruds.specs.DelegateSpecification;
+import ru.fssp.odpea.object.Delegate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-
-//import static ru.fssp.odpea.cruds.service.DelegateSpecification.getDublicates;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class DelegateServiceImpl {
+public class DelegateService {
 
     private final DelegateRepository delegateRepository;
 
-    public DelegateServiceImpl(DelegateRepository delegateRepository) {
+    public DelegateService(DelegateRepository delegateRepository) {
         this.delegateRepository = delegateRepository;
     }
-
-    public Page<Delegate> findAllWithValue(Pageable pageable, String valueNameFirm) {
+// должны ли быть публичные методы сервиса???
+    public Page<Delegate> findAllWithFilterValue(Pageable pageable, String valueNameFirm) {
         log.info("Сервис обработки поиска по значению показателя (OGRN|REGNOM) {} организации, сдающей отчетность", valueNameFirm);
         Page<Delegate> pageList = null;
         Specification<Delegate> specification = DelegateSpecification.getFilterValueNameFirm(valueNameFirm);
         log.info("Пагинация valueNameFirm {}, полученный запрос {}", valueNameFirm, specification);
-//            pageList = aboInputDelegateRepository.findAllByValueWho(specification.toString(), pageable);
         try {
             pageList = delegateRepository.findAll(specification, pageable);
             log.info("Получен список из бд с пагинацией valueNameFirm {} с полученный запрос {}", valueNameFirm, pageList.get());
@@ -53,21 +50,15 @@ public class DelegateServiceImpl {
         log.info("Сервис обработки добавления нового объекта делегата {}", aboInputDelegateRqst);
         Delegate delegate = new Delegate();
         checkForDublicates(null, aboInputDelegateRqst);
-        if (aboInputDelegateRqst.getDtBeg().isBefore(aboInputDelegateRqst.getDtEnd())) {
-            log.info("Дата начала записи соответствует требованию с датой окончания записи {}, {}", aboInputDelegateRqst.getDataCreate(), aboInputDelegateRqst);
-            try {
-                log.info("Делегат, установлена дата {}", delegate);
-                DelegateMapper.INSTANCE.mapFromDtoReq(delegate, aboInputDelegateRqst);
-                delegate.setDataCreate(LocalDateTime.now());
-                return delegateRepository.save(delegate);
-            } catch (Exception e) {
-                log.error("Сохранение не удалось {}", e.getMessage());
-                throw new IOException(e.getMessage(), e);
-            }
-        }
-        log.error("Дата начала записи {} не должна быть позже, чем дата окончания записи {}", aboInputDelegateRqst.getDtBeg(), aboInputDelegateRqst.getDtEnd());
-        throw new IOException("Ошибка при попытке сохранить несовместимые даты");
-    }
+        log.info("Дата создания записи из запроса= {}", aboInputDelegateRqst.getDataCreate());
+        DelegateMapper.INSTANCE.mapFromDtoReq(delegate, aboInputDelegateRqst);
+        delegate.setDataCreate(LocalDateTime.now());
+        log.info("Делегат, установлена дата {}", delegate);
+        return delegateRepository.save(delegate); // TODO: 01.07.2023  - нунжо ли отлавливать ошибки из бд проверяемые/непровер
+        
+//        log.error("Сохранение не удалось {}", delegate);
+//                throw new IOException(e.getMessage(), e)
+}
 
     public DelegateDtoResponse update(Long id, DelegateDtoRequest aboInputDelegateRqst) throws IOException {
         log.info("Сервис обработки обновление существующего делегата с id={} и обновляемыми параметрами {}", id, aboInputDelegateRqst);
@@ -96,42 +87,49 @@ public class DelegateServiceImpl {
 
     //    не должна выдаваться ошибка, если обнеовление записи только по полям type & isActive
     private void checkForDublicates(Long id, DelegateDtoRequest aboInputDelegateRqst) {
-        Delegate delegate = new Delegate();
-        DelegateMapper.INSTANCE.mapFromDtoReq(delegate, aboInputDelegateRqst);
-        if (id != null) {
-            delegate.setId(id);
+        if (aboInputDelegateRqst.getDtBeg().isBefore(aboInputDelegateRqst.getDtEnd())) {
+            Delegate delegate = new Delegate();
+            DelegateMapper.INSTANCE.mapFromDtoReq(delegate, aboInputDelegateRqst);
+            if (id != null) {
+                delegate.setId(id);
+            }
+//вынести
+            List<Delegate> allDelegate = delegateRepository.findAll(getDelegateSpecification(delegate))
+                    .stream().filter(duvleDelegate -> !duvleDelegate.getId().equals(id))
+                    .collect(Collectors.toList());
+            log.error("Все записи дублекаты делегатов {}", allDelegate);
+//        allDelegate.removeIf(duvleDelegate -> duvleDelegate.getId().equals(id));
+            if (!allDelegate.isEmpty()) {
+                log.error("Данная запись уже существует {}", allDelegate);
+                throw new DelegateException("Данная запись уже существует");
+            }
+            log.info("Проверка на дубликаты пройдена");
         }
-        /*Specification<AboInputDelegate> specification = Specification.where(
-                DelegateRqst == null ? null : hasDublicates(delegate));*/
-//                DelegateRqst.getValueWho() == null ? null : fieldEquals(aboInputDelegateRqst.getValueWho()));
-//        hasDublicates(delegate);
-//        Specification<Delegate> specification = getDublicates(delegate);
-//        Specification<Delegate> specification = DelegateSpecification::hasDublicates;
-//        log.info("Спецификация выполнена {}", specification);
-        if (delegateRepository.existsByValueNameFirmAndValueInsteadNameFirmAndDtBegAndDtEnd(
+        log.error("Дата начала записи {} не должна быть позже, чем дата окончания записи {}", aboInputDelegateRqst.getDtBeg(), aboInputDelegateRqst.getDtEnd());
+        throw new DelegateException("Ошибка при попытке сохранить несовместимые даты");
+    }
+
+    private static Specification<Delegate> getDelegateSpecification(Delegate delegate) {
+        Specification<Delegate> specification = DelegateSpecification.getDublicates(
                 delegate.getValueNameFirm(),
                 delegate.getValueInsteadNameFirm(),
                 delegate.getDtBeg(),
-                delegate.getDtEnd()
-  /*              delegate.getType(),
-                delegate.getIsNowActive())*/)) {
-            log.error("Данная запись уже существует {}", delegate);
-            throw new DelegateException("Данная запись уже существует");
-        }
-        log.info("1-я проверка на дубликаты пройдена");
-        checkForDublicatesAndDates(delegate);
-        log.info("2-я проверка на пересечение дат на дубликаты пройдена");
+                delegate.getDtEnd(),
+                delegate.getType(),
+                delegate.getIsNowActive());
+        log.info("Спецификация выполнена {}", specification);
+        return specification;
     }
 
     /*создание записи с одинаковыми реквизитами, но которая пересекается с периодом начала/окончания уже существующей нельзя добавлять.*/
-    private void checkForDublicatesAndDates(Delegate delegate) {
+   /* private void checkForDublicatesAndDates(Delegate delegate) {
         List<Delegate> existingRecordsDelegates = delegateRepository.findByValueNameFirm(delegate.getValueNameFirm());
         log.info("Найденный список записей: {}", existingRecordsDelegates);
-        /*if (delegateRepository.existsByValueWhoOrValueForWhomWithPeriod(
+        *//*if (delegateRepository.existsByValueWhoOrValueForWhomWithPeriod(
                 delegate.getValueWho(),
                 delegate.getValueForWhom(),
                 delegate.getDtBeg(),
-                delegate.getDtEnd())) {*/
+                delegate.getDtEnd())) {*//*
         for (Delegate aboDelegate : existingRecordsDelegates) {
             if (Objects.equals(aboDelegate.getId(), delegate.getId()) || aboDelegate.getId() == null) {
                 log.info("Условие исключения просмотра текущего изменяемого делегата: {}, {}, условие с equals: {}", aboDelegate.getId(), delegate.getId(), !aboDelegate.getId().equals(delegate.getId()));
@@ -150,7 +148,7 @@ public class DelegateServiceImpl {
             }
         }
         log.error("Проверка пройдена корректно, совпадений не найдено");
-    }
+    }*/
 
     public void delete(Long id) {
         Optional<Delegate> foundDelegateOptional = delegateRepository.findById(id);

@@ -13,28 +13,26 @@ import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
 import ru.fssp.odpea.cruds.dto.DelegateDtoResponse;
 import ru.fssp.odpea.cruds.exceptions.DelegateException;
 import ru.fssp.odpea.object.Delegate;
-import ru.fssp.odpea.cruds.service.impl.DelegateServiceImpl;
+import ru.fssp.odpea.cruds.service.DelegateService;
 
 import java.util.Objects;
-import java.util.Optional;
 
 
 @RestController
 @Slf4j
 public class DelegateController implements DelegateApi {// NamingPractice
-    private final DelegateServiceImpl delegateService;
-    public DelegateController(DelegateServiceImpl delegateService) {
+    private final DelegateService delegateService;
+    public DelegateController(DelegateService delegateService) {
         this.delegateService = delegateService;
     }
 
     public ResponseEntity<Delegate> create(DelegateDtoRequest aboInputDelegateDtoRequest) {
         log.info("Получен запрос для добавления нового объекта {}", aboInputDelegateDtoRequest);
-//        AboInputDelegate mappedAboInputDelegate = AboInputDelegateMapper.INSTANCE.mapFromDto(aboInputDelegateDto);
         try {
             return ResponseEntity.status(HttpStatus.CREATED).body(delegateService.create(aboInputDelegateDtoRequest));
         } catch (Exception e) {
             log.error("Ошибка сохранения {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(new Delegate());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Delegate());
         }
     }
 
@@ -45,7 +43,7 @@ public class DelegateController implements DelegateApi {// NamingPractice
         log.info("Получен запрос на получение всех значений показателя (OGRN|REGNOM) {} организации, сдающей отчетность", valueNameFirm);
         Pageable pageable = PageRequest.of(page, size);
         log.info("Заполнены поля для пагинации(page {}, size {}), pageable {}", page, size, pageable);
-        Page<Delegate> allDelegatesByValueWho = delegateService.findAllWithValue(pageable, valueNameFirm);
+        Page<Delegate> allDelegatesByValueWho = delegateService.findAllWithFilterValue(pageable, valueNameFirm);
         if (Objects.isNull(allDelegatesByValueWho) || allDelegatesByValueWho.isEmpty()) {
             log.info("Организации не найдены {} сдающей отчетность ", valueNameFirm);
         }

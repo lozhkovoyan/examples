@@ -18,9 +18,8 @@ public class Delegate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Enumerated(EnumType.STRING)
-    @Column(name = "TYPE")//(default = "OGRN|REGNON")
-    private Type type;
+    @Column(name = "TYPE")
+    private String type;
     @Column(name = "VALUE_NAME_FIRM")
     private String valueNameFirm;
     @Column(name = "VALUE_INSTEAD_NAME_FIRM")

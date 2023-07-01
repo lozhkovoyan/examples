@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.fssp.odpea.cruds.dto.DelegateDtoRequest;
 import ru.fssp.odpea.cruds.dto.DelegateDtoResponse;
 import ru.fssp.odpea.object.Delegate;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.Optional;
 
